@@ -22,6 +22,10 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -32,10 +36,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.table.DefaultTableModel;
 
+import org.bridgedb.Xref;
 import org.pathvisio.core.model.ObjectType;
 import org.pathvisio.core.model.Pathway;
 import org.pathvisio.core.model.PathwayElement;
@@ -54,7 +61,7 @@ public class PppPane extends JPanel
 	static final String TITLE = "Loom";
 	PvDesktop desktop;
 	JPanel panel;
-	
+
 	private static class CopyAction extends AbstractAction
 	{
 		private final VPathway vPwy;
@@ -65,19 +72,20 @@ public class PppPane extends JPanel
 					Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 			putValue(NAME, "Copy");
 		}
-		
+
 		public void actionPerformed(ActionEvent arg0) 
 		{
 			vPwy.copyToClipboard();
 		}
 	}
-	
+
 	/**
 	 * Add a new Pathway part to the panel, with the given description displayed above it.
 	 */
 	public void addPart(String desc, Pathway part)
 	{
 		panel.removeAll();
+
 		panel.add (new JLabel(desc));
 		JScrollPane scroller =  
 			new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -93,7 +101,39 @@ public class PppPane extends JPanel
 		scroller.add(wrapper);
 
 		panel.add (scroller);
+
 		
+		List<Xref> xrefs = part.getDataNodeXrefs();
+		//System.out.println(part.getElementById(part.getGraphIds().iterator().next()).get.getTextLabel());
+		DefaultTableModel model = new DefaultTableModel(); 
+		JTable table = new JTable(model); 
+
+		// Create a couple of columns 
+		model.addColumn("Label");
+		model.addColumn("DataSource"); 
+		model.addColumn("Identifier"); 
+		model.addColumn("Website");
+
+		// Append a row 
+		Set<String> graphIds = part.getGraphIds();
+		Iterator<String> graphIdIterator = graphIds.iterator();
+		while (graphIdIterator.hasNext()){
+			String graphId = graphIdIterator.next();
+			PathwayElement pwElement = part.getElementById(graphId);
+			String textLabel = pwElement.getTextLabel();
+			String datasource = pwElement.getXref().getDataSource().getFullName();
+			String identifier = pwElement.getXref().getId();
+			String website = pwElement.getXref().getUrl();
+			model.addRow(new Object[]{textLabel, datasource, identifier, website});
+		}
+		
+		
+
+		JScrollPane scrollPane = new JScrollPane(table);
+		//table.setFillsViewportHeight(true);
+
+		panel.add(scrollPane);
+
 		JTabbedPane pane = desktop.getSwingEngine().getApplicationPanel().getSideBarTabbedPane();
 		int index = pane.indexOfTab(TITLE);
 		if (index > 0)
@@ -102,27 +142,27 @@ public class PppPane extends JPanel
 		}
 		validate();
 	}
-	
+
 	/**
 	 * Create a new Ppp Pane with Help button. Parts can be added later.
 	 */
 	public PppPane (final PvDesktop desktop)
 	{
 		this.desktop = desktop;
-	
+
 		setLayout (new BorderLayout());
-	
+
 		panel = new JPanel ();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		add (new JScrollPane (panel), BorderLayout.CENTER);
-		
+
 		// help button
 		JButton help = new JButton("Help");
 		JButton clear = new JButton("Clear");
 		//JButton drawDataNode = new JButton("Draw New Datanode");
 		panel.add (help);
 		panel.add(clear);
-		
+
 		JTextPane detailpane = new JTextPane();
 		detailpane.setContentType("text/html");
 		detailpane.setEditable(false);
@@ -134,14 +174,14 @@ public class PppPane extends JPanel
 		}
 		panel.add(detailpane);
 		//panel.add(drawDataNode);
-		
+
 		// The following section is to experiment with adding spokes to parent pathway.
 		PathwayElement pelt = PathwayElement.createPathwayElement(ObjectType.DATANODE);
 		pelt.setMWidth (PppPlugin.DATANODE_MWIDTH);
-	    pelt.setMHeight (PppPlugin.DATANODE_MHEIGHT);
-	    pelt.setTextLabel("This is a test");
-	    
-		
+		pelt.setMHeight (PppPlugin.DATANODE_MHEIGHT);
+		pelt.setTextLabel("This is a test");
+
+
 		clear.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
@@ -152,7 +192,7 @@ public class PppPane extends JPanel
 					{
 						try
 						{
-							
+
 							//panel;
 							//panel.revalidate();
 						}
@@ -172,7 +212,7 @@ public class PppPane extends JPanel
 				}).start();
 			}
 		});	
-		
+
 		help.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
@@ -202,7 +242,7 @@ public class PppPane extends JPanel
 				}).start();
 			}
 		});
-		
+
 	}	
 }
 

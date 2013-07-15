@@ -109,7 +109,7 @@ public class WikiPathwaysPppPlugin extends SuggestionAdapter
 	            doc.getDocumentElement().normalize();
 	            
 	            NodeList wikiPathwaysInteractionsLst = doc.getElementsByTagName("ns2:name");
-	            // System.out.println(wikiPathwaysInteractionsLst.getLength());
+	             //System.out.println(wikiPathwaysInteractionsLst.getLength());
 			            
 
 			Model model = ModelFactory.createDefaultModel();
@@ -132,6 +132,7 @@ public class WikiPathwaysPppPlugin extends SuggestionAdapter
 				    }
 				}
 			}
+			
 			PathwayElement pelt = PathwayElement.createPathwayElement(ObjectType.DATANODE);
 			pelt.setMWidth (PppPlugin.DATANODE_MWIDTH);
 			pelt.setMHeight (PppPlugin.DATANODE_MHEIGHT);
@@ -140,8 +141,7 @@ public class WikiPathwaysPppPlugin extends SuggestionAdapter
 			pelt.setGeneID(origin.getProperty(DC.identifier).getString());
 			pelt.setCopyright("Copyright notice");
 			pelt.setDataNodeType(input.getDataNodeType());
-			
-			
+		
 			List<PathwayElement> spokes = new ArrayList<PathwayElement>();
 			String sparqlQueryString = "PREFIX wp: <http://vocabularies.wikipathways.org/>" +
 			"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"+	
@@ -155,10 +155,10 @@ public class WikiPathwaysPppPlugin extends SuggestionAdapter
 				QuerySolution candidate = resultSet.next();
 				RDFNode candidateNode = candidate.get("o");
 				PathwayElement pchildElt = PathwayElement.createPathwayElement(ObjectType.DATANODE);
-				pchildElt.setDataNodeType (DataNodeType.METABOLITE);
+				pchildElt.setDataNodeType (DataNodeType.UNKOWN);
 				pchildElt.setTextLabel(candidateNode.toString());
-				pchildElt.setDataSource (BioDataSource.CHEBI);
-				//pchildElt.setGeneID(compoundId.toString());
+				//pchildElt.setDataSource (BioDataSource.CHEBI);
+				pchildElt.setGeneID("NOT_ASSIGNED");
 				pchildElt.setMWidth (PppPlugin.DATANODE_MWIDTH);
 				pchildElt.setMHeight (PppPlugin.DATANODE_MHEIGHT);
 				spokes.add (pchildElt);

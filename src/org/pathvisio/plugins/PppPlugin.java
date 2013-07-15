@@ -115,6 +115,7 @@ public class PppPlugin implements Plugin, PathwayElementMenuHook
 	SuggestionAction wikiPathwaysAction;
 	SuggestionAction openPhactsSparql;
 	SuggestionAction localInteractionGpml;
+	SuggestionAction openPhactsCompoundPharmaAPI;
 
 	ArrayList<SuggestionAction> cwSAList;
 
@@ -162,7 +163,8 @@ public class PppPlugin implements Plugin, PathwayElementMenuHook
 		conceptWikiSparql = new SuggestionAction(this, "ConceptWiki", new ConceptWikiSparqlPppPlugin(gdbManager));
 		openPhactsSparql = new SuggestionAction(this, "Find compound by Gene", new OpenPhactsPppPlugin(gdbManager));
 		stitchSparql = new SuggestionAction(this, "Find suggestions", new StitchSparqlPppPlugin(gdbManager));
-		localInteractionGpml = new SuggestionAction(this, "Local Gpml Interaction", new LocalInteractionGpmlPppPlugin(gdbManager)); 
+		localInteractionGpml = new SuggestionAction(this, "Local Gpml Interaction", new LocalInteractionGpmlPppPlugin(gdbManager));
+		openPhactsCompoundPharmaAPI = new SuggestionAction(this, "Get Targets of Compound", new OpenPhactsApiPlugin(gdbManager));
 	}
 
 	public void done() {}
@@ -275,18 +277,18 @@ public class PppPlugin implements Plugin, PathwayElementMenuHook
         
 		if (e instanceof GeneProduct)
 		{
-			JMenu submenu = new JMenu("Find suggestions");
-			JMenuItem titleMenu = submenu.add("Pathvisio Loom");
+			JMenu submenu = new JMenu("Pathway Loom");
+			JMenuItem titleMenu = submenu.add("Pathway Loom BETA");
 			titleMenu.setEnabled(false);
 			titleMenu.setFont(new Font("sansserif", Font.BOLD, 16));
 			titleMenu.setBackground(Color.white);
 			titleMenu.setForeground(Color.gray);
-			JMenuItem interactionMenu = submenu.add("Find interaction suggestions");
-			interactionMenu.setEnabled(false);
-			interactionMenu.setBackground(Color.orange);
-			interactionMenu.setForeground(Color.yellow);	
+			//JMenuItem interactionMenu = submenu.add("Find interaction suggestions");
+			//interactionMenu.setEnabled(false);
+			//interactionMenu.setBackground(Color.orange);
+			//interactionMenu.setForeground(Color.yellow);	
 
-			JMenuItem undirectedInteractionMenu = new JMenuItem("Undirected Interaction");
+			/*JMenuItem undirectedInteractionMenu = new JMenuItem("Undirected Interaction");
 			submenu.add(undirectedInteractionMenu);
 			JMenuItem directedInteractionMenu = new JMenuItem("Directed Interaction", new ImageIcon("newinteraction.gif"));
 			submenu.add(directedInteractionMenu);
@@ -302,28 +304,51 @@ public class PppPlugin implements Plugin, PathwayElementMenuHook
 			JMenu stimulationMenu = new JMenu("Stimulation");
 			submenu.add(stimulationMenu);
 			submenu.addSeparator();
-			JMenuItem developerMenu = submenu.add("Find resource specific interaction suggestions");
-			developerMenu.setEnabled(false);
-			developerMenu.setBackground(Color.orange);
-			developerMenu.setForeground(Color.yellow);
-			//JMenu localDataMenu = new JMenu("Local Interaction data");
-			JMenu webserviceDataMenu = new JMenu("Interaction data (Remote webservices");
-			JMenu semanticWebDataMenu = new JMenu("Interaction data (Semantic web)");
-			JMenu openPhactsMenu = new JMenu("OpenPhacts");
+			*/
+			JMenuItem WikiPathwaysMenu = submenu.add("WikiPathways");
+			WikiPathwaysMenu.setEnabled(false);
+			WikiPathwaysMenu.setBackground(Color.orange);
+			WikiPathwaysMenu.setForeground(Color.yellow);
+			//submenu.add("Get interaction suggestions");
+			wikiPathwaysAction.setElement((GeneProduct) e);
+			submenu.add(wikiPathwaysAction);
+			JMenuItem pathwayCommonsMenu = submenu.add("Pathway Commons");
+			pathwayCommonsMenu.setEnabled(false);
+			pathwayCommonsMenu.setBackground(Color.orange);
+			pathwayCommonsMenu.setForeground(Color.yellow);
 			
-			JMenuItem localDataMenu = submenu.add("Interaction data (locally saved)");
+			pathwayCommonsAll.setElement((GeneProduct) e);
+			pathwayCommonsBiogrid.setElement((GeneProduct) e);
+			pathwayCommonsCell_Map.setElement((GeneProduct) e);
+			pathwayCommonsHprd.setElement((GeneProduct) e);
+			pathwayCommonsHumancyc.setElement((GeneProduct) e);
+			pathwayCommonsIntact.setElement((GeneProduct) e);
+			pathwayCommonsMint.setElement((GeneProduct) e);
+			pathwayCommonsNci_Nature.setElement((GeneProduct) e);
+			pathwayCommonsReactome.setElement((GeneProduct) e);
+			submenu.add(pathwayCommonsAll);
+			submenu.add(pathwayCommonsBiogrid);
+			submenu.add(pathwayCommonsCell_Map);
+			submenu.add(pathwayCommonsHprd);
+			submenu.add(pathwayCommonsHumancyc);
+			submenu.add(pathwayCommonsIntact);
+			submenu.add(pathwayCommonsMint);
+			submenu.add(pathwayCommonsNci_Nature);
+			submenu.add(pathwayCommonsReactome);
+			
+			JMenuItem localDataMenu = submenu.add("Open PHACTS");
 			localDataMenu.setEnabled(false);
 			localDataMenu.setBackground(Color.orange);
 			localDataMenu.setForeground(Color.yellow);
+			submenu.add(openPhactsCompoundPharmaAPI);
+			//submenu.add("Get target compounds");
 			
-			
-			submenu.add(webserviceDataMenu);
-			submenu.add(semanticWebDataMenu);
+
 			
 		
 			
 			Icon opsIcon = new ImageIcon("favicon.gif");
-			openPhactsMenu.setIcon(opsIcon);
+			/*openPhactsMenu.setIcon(opsIcon);
 			webserviceDataMenu.add(wikiPathwaysAction);
 			semanticWebDataMenu.add(openPhactsMenu);
 			openPhactsSparql.setElement((GeneProduct)e);
@@ -337,6 +362,7 @@ public class PppPlugin implements Plugin, PathwayElementMenuHook
 			whatizitPppAction.setElement((GeneProduct) e);
 			webserviceDataMenu.add(whatizitPppAction);
 
+           */
 			JMenu kegg = new JMenu("KEGG");
 			keggEnzymeByCompound.setElement((GeneProduct) e);
 			keggEnzymeByGene.setElement((GeneProduct) e);
@@ -344,38 +370,17 @@ public class PppPlugin implements Plugin, PathwayElementMenuHook
 			kegg.add(keggEnzymeByCompound);
 			kegg.add(keggEnzymeByGene);
 			kegg.add(keggGeneByEnzyme);
-			webserviceDataMenu.add(kegg);
-			JMenu pathwaycommons = new JMenu("Pathway Commons");
-			pathwayCommonsAll.setElement((GeneProduct) e);
-			pathwayCommonsBiogrid.setElement((GeneProduct) e);
-			pathwayCommonsCell_Map.setElement((GeneProduct) e);
-			pathwayCommonsHprd.setElement((GeneProduct) e);
-			pathwayCommonsHumancyc.setElement((GeneProduct) e);
-			pathwayCommonsIntact.setElement((GeneProduct) e);
-			pathwayCommonsMint.setElement((GeneProduct) e);
-			pathwayCommonsNci_Nature.setElement((GeneProduct) e);
-			pathwayCommonsReactome.setElement((GeneProduct) e);
-			pathwaycommons.add(pathwayCommonsAll);
-			pathwaycommons.add(pathwayCommonsBiogrid);
-			pathwaycommons.add(pathwayCommonsCell_Map);
-			pathwaycommons.add(pathwayCommonsHprd);
-			pathwaycommons.add(pathwayCommonsHumancyc);
-			pathwaycommons.add(pathwayCommonsIntact);
-			pathwaycommons.add(pathwayCommonsMint);
-			pathwaycommons.add(pathwayCommonsNci_Nature);
-			pathwaycommons.add(pathwayCommonsReactome);
-			webserviceDataMenu.add(pathwaycommons);
-			submenu.addSeparator();
-			submenu.addSeparator();
-			submenu.add(localDataMenu);
+			//webserviceDataMenu.add(kegg);
+			
+
 			
 			JMenuItem importInteractionData = new JMenuItem ("Import GPML Interaction Data....");
 			localInteractionGpml.setElement((GeneProduct) e);
-			submenu.add(importInteractionData);
+			//submenu.add(importInteractionData);
 			
 			JMenuItem importWPRdfInteractionData = new JMenuItem ("Import RDF Interaction Data....");
 			localInteractionGpml.setElement((GeneProduct) e);
-			submenu.add(importWPRdfInteractionData);
+			//submenu.add(importWPRdfInteractionData);
 			
 			/*JMenuItem preferencesPL = new JMenuItem("Preferences...");
                 submenu.add(preferencesPL);
